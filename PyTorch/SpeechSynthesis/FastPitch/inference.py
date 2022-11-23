@@ -147,6 +147,29 @@ def parse_args(parser):
     return parser
 
 
+def load_model_from_ckpt(checkpoint_path, ema, model):
+
+    checkpoint_data = torch.load(checkpoint_path)
+    status = ''
+
+    if 'state_dict' in checkpoint_data:
+        sd = checkpoint_data['state_dict']
+        if ema and 'ema_state_dict' in checkpoint_data:
+            sd = checkpoint_data['ema_state_dict']
+            status += ' (EMA)'
+        elif ema and not 'ema_state_dict' in checkpoint_data:
+            print(f'WARNING: EMA weights missing for {checkpoint_data}')
+
+        if any(key.startswith('module.') for key in sd):
+            sd = {k.replace('module.', ''): v for k,v in sd.items()}
+        status += ' ' + str(model.load_state_dict(sd, strict=False))
+    else:
+        model = checkpoint_data['model']
+    print(f'Loaded {checkpoint_path}{status}')
+
+    return model
+
+
 def load_fields(fpath):
     lines = [l.strip() for l in open(fpath, encoding='utf-8')]
     if fpath.endswith('.tsv'):

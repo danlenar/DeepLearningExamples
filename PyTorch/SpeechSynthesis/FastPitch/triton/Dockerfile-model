@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG FROM_IMAGE_NAME=nvcr.io/nvidia/pytorch:21.02-py3
-ARG TRITON_CLIENT_IMAGE_NAME=nvcr.io/nvidia/tritonserver:21.02-py3-sdk
+ARG FROM_IMAGE_NAME=nvcr.io/nvidia/pytorch:22.10-py3
+ARG TRITON_CLIENT_IMAGE_NAME=nvcr.io/nvidia/tritonserver:22.10-py3-sdk
 FROM ${TRITON_CLIENT_IMAGE_NAME} as triton-client
 FROM ${FROM_IMAGE_NAME}
 
@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y libb64-dev libb64-0d
 
 # Install Triton Client Python API and copy Perf Client
 COPY --from=triton-client /workspace/install/ /workspace/install/
-RUN pip install /workspace/install/python/triton*.whl
+RUN pip install /workspace/install/python/tritonclient-2.27.0-py3-none-any.whl
 
 # Setup environment variables to access Triton Client binaries and libs
 ENV PATH /workspace/install/bin:${PATH}
